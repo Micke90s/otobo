@@ -1689,8 +1689,13 @@ sub PackageOnlineGet {
 
         return $PackageFromCloud;
     }
-
-    return $Self->_Download( URL => $Param{Source} . '/' . $Param{File} );
+    
+    # Check if `File` refers an absolute URL
+    if ($Param{File} =~ m{^(?:https?|ftps?)://}i) {
+        return $Self->_Download( URL => $Param{File} );
+    }else{
+        return $Self->_Download( URL => $Param{Source} . '/' . $Param{File} );
+    }
 }
 
 =head2 DeployCheck()
