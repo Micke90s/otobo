@@ -1656,7 +1656,7 @@ sub PackageOnlineGet {
             );
             return;
         }
-    }
+    } 
 
     #check if file might be retrieved from cloud
     my $RepositoryCloudList;
@@ -1689,13 +1689,28 @@ sub PackageOnlineGet {
 
         return $PackageFromCloud;
     }
-    
-    # Check if `File` refers an absolute URL
-    if ($Param{File} =~ m{^(?:https?|ftps?)://}i) {
-        return $Self->_Download( URL => $Param{File} );
-    }else{
-        return $Self->_Download( URL => $Param{Source} . '/' . $Param{File} );
+
+    # Define download URL
+    my $uri;
+    eval {
+        $uri = URI->new($Param{File});
+        # Check for absolute URL
+        if (!$uri->scheme) {
+            $uri = URI->new_abs($Param{File}, $Param{Source});
+        }
+    };
+    if ($@ || !$uri) {
+        return 'ErrorMessage: Invalid URL ' . $uri;
     }
+
+    # Validate scheme (HTTP/HTTPS/FTP)
+    if (!$uri->scheme || $uri->scheme !~ /^(https?|ftp)$/i) {
+        return 'ErrorMessage: Unsupported Scheme (' . ($uri->scheme // 'undef') . ')';
+    }
+
+    # Download package
+    return $Self->_Download( URL => $uri->as_string );    
+
 }
 
 =head2 DeployCheck()
