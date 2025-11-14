@@ -3259,7 +3259,7 @@ sub PackageUpgradeAll {
         }
 
         my $Package = $Self->PackageOnlineGet(
-            Source => $MetaPackage->{URL},
+            Source => $MetaPackage->{Source},
             File   => $MetaPackage->{File},
         );
 
@@ -5225,6 +5225,7 @@ Returns:
                    URL        => 'http://otobo.org/',
                     FromCloud => 1,                     # 1 or 0,
                     Version   => '6.0.20',
+                    Source    => 'http://otobo.org/',
                     File      => 'Test-6.0.20.opm',
             },
             # ...
@@ -5259,7 +5260,7 @@ sub _PackageOnlineListGet {
         if ( $RepositoryCloudList->{$URL} ) {
             $FromCloud = 1;
 
-        }
+        }   
 
         my @OnlineList = $Self->PackageOnlineList(
             URL                => $URL,
@@ -5272,10 +5273,24 @@ sub _PackageOnlineListGet {
         push @PackageOnlineList, @OnlineList;
 
         for my $Package (@OnlineList) {
+            # Check alternative Source
+            my $Source; 
+            eval {
+                my $Uri = URI->new($Package->{Source});
+                if ($Uri->scheme ) {
+                    $Source = $Uri->as_string;
+                }
+            };
+            # Use current URL as Source
+            if ($@ || !$Source) {
+                $Source = $URL;
+            }         
+
             $PackageSourceLookup{ $Package->{Name} } = {
                 URL       => $URL,
                 FromCloud => $FromCloud,
                 Version   => $Package->{Version},
+                Source    => $Source,
                 File      => $Package->{File},
             };
         }

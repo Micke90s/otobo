@@ -523,11 +523,12 @@ sub Run {
     if ( $Self->{Subaction} eq 'ViewRemote' ) {
         my $File     = $ParamObject->GetParam( Param => 'File' ) || '';
         my $Location = $ParamObject->GetParam( Param => 'Location' );
-        my %Frontend;
+        my $PackageSource = $ParamObject->GetParam( Param => 'Source' ) || $Source;
+        my %Frontend;        
 
         # download package
         my $Package = $PackageObject->PackageOnlineGet(
-            Source => $Source,
+            Source => $PackageSource,
             File   => $File,
         );
 
@@ -782,10 +783,11 @@ sub Run {
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'DownloadRemote' ) {
         my $File = $ParamObject->GetParam( Param => 'File' ) || '';
+        my $PackageSource = $ParamObject->GetParam( Param => 'Source' ) || $Source;
 
         # download package
         my $Package = $PackageObject->PackageOnlineGet(
-            Source => $Source,
+            Source => $PackageSource,
             File   => $File,
         );
 
@@ -850,16 +852,17 @@ sub Run {
         $LayoutObject->ChallengeTokenCheck();
 
         my $File = $ParamObject->GetParam( Param => 'File' ) || '';
+        my $PackageSource = $ParamObject->GetParam( Param => 'Source' ) || $Source;
 
         # download package
         my $Package = $PackageObject->PackageOnlineGet(
-            Source => $Source,
+            Source => $PackageSource,
             File   => $File,
         );
 
         return $Self->_InstallHandling(
             Package => $Package,
-            Source  => $Source,
+            Source  => $PackageSource,
             File    => $File,
         );
     }
@@ -873,17 +876,18 @@ sub Run {
         $LayoutObject->ChallengeTokenCheck();
 
         my $File = $ParamObject->GetParam( Param => 'File' ) || '';
+        my $PackageSource = $ParamObject->GetParam( Param => 'Source' ) || $Source;
 
         # download package
         my $Package = $PackageObject->PackageOnlineGet(
             File   => $File,
-            Source => $Source,
+            Source => $PackageSource,
         );
 
         return $Self->_UpgradeHandling(
             Package => $Package,
             File    => $File,
-            Source  => $Source,
+            Source  => $PackageSource,
         );
     }
 
@@ -1603,7 +1607,7 @@ sub Run {
                 Name => 'ShowRemotePackage',
                 Data => {
                     %{$Data},
-                    Source => $Source,
+                    URL => $Source,
                 },
             );
 
@@ -1614,7 +1618,7 @@ sub Run {
                     Name => 'ShowRemotePackageDocumentation',
                     Data => {
                         %{$Data},
-                        Source => $Source,
+                        URL => $Source,
                         %DocFile,
                     },
                 );
@@ -1625,7 +1629,7 @@ sub Run {
                     Name => 'ShowRemotePackageUpgrade',
                     Data => {
                         %{$Data},
-                        Source => $Source,
+                        URL => $Source,
                     },
                 );
             }
@@ -1634,7 +1638,7 @@ sub Run {
                     Name => 'ShowRemotePackageInstall',
                     Data => {
                         %{$Data},
-                        Source => $Source,
+                        URL => $Source,
                     },
                 );
             }
